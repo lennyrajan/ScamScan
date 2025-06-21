@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="ScamScan — Instantly check if a message is a scam. Free and fast scam detection." />
+  <meta name="keywords" content="scam check, message verification, fraud detection, spam analyzer, ScamScan" />
+  <meta name="author" content="Lenny Rajan" />
+  <meta name="robots" content="index, follow" />
+  <meta name="google-site-verification" content="AOiTGI_SnsG9S2IfTSFuHc4RVun0iFu8mgcWKqJVYqc" />
+  <title>ScamScan — Is this a Scam?</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #121212;
+      color: #f4f4f4;
+      padding: 1rem;
+      margin: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.light {
+      background: #f4f4f4;
+      color: #222;
+    }
+    .toggleTheme {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: inherit;
+      z-index: 1000;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding-top: 4rem;
+    }
+    textarea, select, input[type="text"], button {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.6rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    button {
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #43a047;
+    }
+    .result {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 6px;
+      background: #1e1e1e;
+    }
+    body.light .result {
+      background: #eee;
+    }
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.9rem;
+      opacity: 0.6;
+    }
+    .clock {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      font-size: 0.95rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock" id="clock"></div>
+  <button class="toggleTheme" title="Toggle Dark Mode" onclick="toggleTheme()">🌗</button>
+  <div class="container">
+    <h1>ScamScan</h1>
+    <p>Worried if a message is a scam? Paste it below and check instantly.</p><label for="source">Source:</label>
+<select id="source" onchange="toggleCustomSource()">
+  <option value="Whatsapp">WhatsApp</option>
+  <option value="SMS">SMS</option>
+  <option value="Email">Email</option>
+  <option value="Facebook">Facebook</option>
+  <option value="Other">Other</option>
+</select>
+<input type="text" id="customSource" placeholder="Enter source" style="display:none" />
+
+<label for="message">Message Content:</label>
+<textarea id="message" placeholder="Paste the suspicious message here..."></textarea>
+
+<button onclick="analyzeScam()">Check for Scam</button>
+<div class="result" id="result" style="display:none"></div>
+
+  </div>
+  <footer>
+    Made with ☕ by Lenny Rajan | <a href="https://scamscan.netlify.app" target="_blank" style="color:inherit">ScamScan.netlify.app</a>
+  </footer>
+  <script>
+    const clock = document.getElementById('clock');
+    function updateClock() {
+      const now = new Date();
+      clock.textContent = now.toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();function toggleTheme() {
+  document.body.classList.toggle('light');
+}
+
+function toggleCustomSource() {
+  const source = document.getElementById('source').value;
+  document.getElementById('customSource').style.display = source === 'Other' ? 'block' : 'none';
+}
+
+function analyzeScam() {
+  const msg = document.getElementById('message').value.toLowerCase();
+  const source = document.getElementById('source').value;
+  const customSource = document.getElementById('customSource').value.trim();
+  const origin = source === 'Other' ? customSource || 'Unknown Source' : source;
+  const result = document.getElementById('result');
+
+  if (!msg) {
+    alert('Please enter a message to check.');
+    return;
+  }
+
+  const scamIndicators = [
+    'congratulations', 'you won', 'click this link', 'urgent', 'free offer',
+    'bank account', 'password', 'lottery', 'otp', 'gift card', 'lucky winner'
+  ];
+
+  const isScam = scamIndicators.some(word => msg.includes(word));
+
+  result.style.display = 'block';
+  result.innerHTML = `
+    <h3>Result:</h3>
+    <p><strong>Source:</strong> ${origin}</p>
+    <p><strong>Verdict:</strong> <span style="color:${isScam ? 'red' : 'limegreen'}">
+      ${isScam ? '⚠️ Likely a SCAM' : '✅ Seems Safe'}</span></p>
+    <p><strong>Reasoning:</strong> ${isScam ? 'Detected suspicious keywords commonly used in scam messages.' : 'No scam indicators were found in this message.'}</p>
+  `;
+}
+
+  </script>
+</body>
+  </html>
