@@ -1,156 +1,117 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="ScanScam — Instantly check if a message is a scam. Free and fast scam detection." />
-  <meta name="keywords" content="scam check, message verification, fraud detection, spam analyzer, ScamScan" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ScamScan — Instantly check if a message is a scam using real-time web intelligence." />
   <meta name="author" content="Lenny Rajan" />
+  <meta name="keywords" content="Scam checker, fraud detector, scam detector, hoax scanner, WhatsApp scam, email scam" />
   <meta name="robots" content="index, follow" />
   <meta name="google-site-verification" content="AOiTGI_SnsG9S2IfTSFuHc4RVun0iFu8mgcWKqJVYqc" />
-  <title>ScanScam — Is this a Scam?</title>
+  <title>ScamScan — Free Scam Detector</title>
   <style>
     body {
-      font-family: sans-serif;
+      margin: 0;
+      font-family: system-ui, sans-serif;
       background: #121212;
       color: #f4f4f4;
-      padding: 1rem;
-      margin: 0;
-      transition: background 0.3s, color 0.3s;
+      padding: 2rem;
     }
-    body.light {
-      background: #f4f4f4;
-      color: #222;
-    }
-    .toggleTheme {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      background: none;
-      border: none;
-      font-size: 1.6rem;
-      cursor: pointer;
-      color: inherit;
-      z-index: 1000;
-    }
-    .container {
-      max-width: 700px;
-      margin: auto;
-      padding-top: 4rem;
-    }
-    textarea, select, input[type="text"], button {
-      width: 100%;
+    h1 {
+      font-size: 1.8rem;
       margin-bottom: 1rem;
+    }
+    textarea, select, button {
+      width: 100%;
       padding: 0.6rem;
       font-size: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
       border: none;
-      border-radius: 4px;
-    }
-    textarea {
-      resize: vertical;
-      min-height: 120px;
     }
     button {
-      background-color: #4caf50;
+      background: #4caf50;
       color: white;
       cursor: pointer;
     }
     button:hover {
-      background-color: #43a047;
+      background: #45a049;
     }
     .result {
-      margin-top: 1rem;
+      margin-top: 2rem;
       padding: 1rem;
       border-radius: 6px;
       background: #1e1e1e;
     }
-    body.light .result {
-      background: #eee;
+    .verdict {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .reason {
+      color: #ccc;
     }
     footer {
       margin-top: 3rem;
-      text-align: center;
       font-size: 0.9rem;
+      text-align: center;
       opacity: 0.6;
-    }
-    .clock {
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      font-size: 0.95rem;
-      opacity: 0.7;
     }
   </style>
 </head>
 <body>
-  <div class="clock" id="clock"></div>
-  <button class="toggleTheme" title="Toggle Dark Mode" onclick="toggleTheme()">🌗</button>
-  <div class="container">
-    <h1>ScanScam</h1>
-    <p>Worried if a message is a scam? Paste it below and check instantly.</p><label for="source">Source:</label>
-<select id="source" onchange="toggleCustomSource()">
-  <option value="Whatsapp">WhatsApp</option>
-  <option value="SMS">SMS</option>
-  <option value="Email">Email</option>
-  <option value="Facebook">Facebook</option>
-  <option value="Other">Other</option>
-</select>
-<input type="text" id="customSource" placeholder="Enter source" style="display:none" />
+  <h1>ScamScan.netlify.app</h1>
+  <p>Check if a message is a scam or not using live web search.</p>
 
-<label for="message">Message Content:</label>
-<textarea id="message" placeholder="Paste the suspicious message here..."></textarea>
+  <label for="source">Message Source:</label>
+  <select id="source">
+    <option value="whatsapp">WhatsApp</option>
+    <option value="email">Email</option>
+    <option value="sms">SMS</option>
+    <option value="facebook">Facebook / Social</option>
+    <option value="other">Other</option>
+  </select>
 
-<button onclick="analyzeScam()">Check for Scam</button>
-<div class="result" id="result" style="display:none"></div>
+  <label for="message">Paste the message:</label>
+  <textarea id="message" rows="6" placeholder="Paste the suspicious message here..."></textarea>
 
+  <button onclick="checkScam()">Scan for Scam 🔍</button>
+
+  <div id="result" class="result" style="display: none;">
+    <div class="verdict" id="verdict"></div>
+    <div class="reason" id="reason"></div>
+    <div class="evidence" id="evidence"></div>
+    <a id="searchLink" href="#" target="_blank">See search results</a>
+    <br /><br />
+    <button onclick="shareWhatsapp()">📤 Share on WhatsApp</button>
   </div>
+
   <footer>
-    Made with ☕ by Lenny Rajan | <a href="https://scanscam.netlify.app" target="_blank" style="color:inherit">ScamScan.netlify.app</a>
+    Made with ☕ by Lenny Rajan
   </footer>
+
   <script>
-    const clock = document.getElementById('clock');
-    function updateClock() {
-      const now = new Date();
-      clock.textContent = now.toLocaleTimeString();
+    async function checkScam() {
+      const message = document.getElementById('message').value.trim();
+      if (!message) return alert('Please paste a message to check.');
+
+      const res = await fetch(`/api/check-scam?q=${encodeURIComponent(message)}`);
+      const data = await res.json();
+
+      document.getElementById('verdict').textContent = `Verdict: ${data.verdict}`;
+      document.getElementById('reason').textContent = data.reason;
+      document.getElementById('evidence').innerHTML = data.evidence.map(t => `<li>${t}</li>`).join('');
+      document.getElementById('searchLink').href = data.searchUrl;
+      document.getElementById('result').style.display = 'block';
     }
-    setInterval(updateClock, 1000);
-    updateClock();function toggleTheme() {
-  document.body.classList.toggle('light');
-}
 
-function toggleCustomSource() {
-  const source = document.getElementById('source').value;
-  document.getElementById('customSource').style.display = source === 'Other' ? 'block' : 'none';
-}
-
-function analyzeScam() {
-  const msg = document.getElementById('message').value.toLowerCase();
-  const source = document.getElementById('source').value;
-  const customSource = document.getElementById('customSource').value.trim();
-  const origin = source === 'Other' ? customSource || 'Unknown Source' : source;
-  const result = document.getElementById('result');
-
-  if (!msg) {
-    alert('Please enter a message to check.');
-    return;
-  }
-
-  const scamIndicators = [
-    'congratulations', 'you won', 'click this link', 'urgent', 'free offer',
-    'bank account', 'password', 'lottery', 'otp', 'gift card', 'lucky winner'
-  ];
-
-  const isScam = scamIndicators.some(word => msg.includes(word));
-
-  result.style.display = 'block';
-  result.innerHTML = `
-    <h3>Result:</h3>
-    <p><strong>Source:</strong> ${origin}</p>
-    <p><strong>Verdict:</strong> <span style="color:${isScam ? 'red' : 'limegreen'}">
-      ${isScam ? '⚠️ Likely a SCAM' : '✅ Seems Safe'}</span></p>
-    <p><strong>Reasoning:</strong> ${isScam ? 'Detected suspicious keywords commonly used in scam messages.' : 'No scam indicators were found in this message.'}</p>
-  `;
-}
-
+    function shareWhatsapp() {
+      const msg = document.getElementById('message').value;
+      const verdict = document.getElementById('verdict').textContent;
+      const shareText = `I just checked a message on ScamScan.netlify.app.\n\nMessage:\n"${msg}"\n\n${verdict}`;
+      const waLink = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+      window.open(waLink, '_blank');
+    }
   </script>
 </body>
-  </html>
+</html>
