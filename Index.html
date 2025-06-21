@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="ScanScam.netlify.app — Quickly check if a message or email is a scam with AI and Google." />
+  <meta name="description" content="ScanScam — Quickly check if a message or email is a scam with AI and Google." />
   <meta name="keywords" content="scam checker, spam detection, scam detection, message scanner, ScanScam" />
   <meta name="author" content="Lenny Rajan" />
   <meta name="robots" content="index, follow" />
   <meta name="google-site-verification" content="AOiTGI_SnsG9S2IfTSFuHc4RVun0iFu8mgcWKqJVYqc" />
-  <title>ScanScam.netlify.app — Check Scam Messages Quickly</title>
+  <title>ScanScam — Check Scam Messages Quickly</title>
   <style>
     body {
       font-family: sans-serif;
@@ -114,7 +114,7 @@
   <button class="toggleTheme" title="Toggle Dark Mode" aria-label="Toggle Dark Mode" onclick="toggleTheme()">🌗</button>
 
   <div class="container">
-    <h1>ScanScam.netlify.app</h1>
+    <h1>ScanScam</h1>
     <p>Quickly check if a message or email is a scam with AI and Google.</p>
 
     <label for="messageInput">Enter message to check:</label>
@@ -156,8 +156,14 @@
       shareBtn.style.display = 'none';
 
       try {
-        // Call Netlify function
-        const response = await fetch(`/.netlify/functions/check-scam?message=${encodeURIComponent(message)}`);
+        const response = await fetch(`/.netlify/functions/check-scam`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message })
+        });
+
         if (!response.ok) throw new Error('Network response was not ok');
 
         const data = await response.json();
@@ -167,8 +173,6 @@
         lastMessage = message;
 
         resultDiv.textContent = `Verdict: ${lastVerdict}\nReason: ${lastReason}`;
-
-        // Show share button
         shareBtn.style.display = 'block';
       } catch (error) {
         resultDiv.textContent = 'Error checking message. Try again later.';
@@ -180,7 +184,7 @@
 
     shareBtn.addEventListener('click', () => {
       if (!lastVerdict || !lastMessage) return;
-      const shareText = `I just checked if this message is a scam using ScanScam.netlify.app.\n\nMessage:\n"${lastMessage}"\n\nVerdict: ${lastVerdict}\nReason: ${lastReason}\n\nCheck it yourself at https://scamscan.netlify.app`;
+      const shareText = `I just checked if this message is a scam using ScanScam.netlify.app.\n\nMessage:\n"${lastMessage}"\n\nVerdict: ${lastVerdict}\nReason: ${lastReason}\n\nCheck it yourself at https://scanscam.netlify.app`;
       const encoded = encodeURIComponent(shareText);
       const whatsappUrl = `https://wa.me/?text=${encoded}`;
       window.open(whatsappUrl, '_blank');
